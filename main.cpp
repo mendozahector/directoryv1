@@ -15,7 +15,7 @@ class Employee {
         std::string position;
 };
 
-void viewEmployeeInfo() {
+std::vector<Employee> getEmployeeData() {
     // Create an input filestream
     std::ifstream directoryFile("directory.csv");
     std::vector<Employee> employees;
@@ -39,6 +39,91 @@ void viewEmployeeInfo() {
         employees.push_back(newEmployee);
     }
 
+    directoryFile.close();
+
+    return employees;
+}
+
+void addEmployeeInfo() {
+    char choice;
+    Employee newEmployee;
+
+    do {
+        std::cout << "Enter new employee information:\n";
+        std::cout << "First Name: ";
+        std::cin >> newEmployee.firstName;
+        std::cout << "Last Name: ";
+        std::cin >> newEmployee.lastName;
+        std::cout << "ID: ";
+        std::cin >> newEmployee.id;
+        std::cout << "Position: ";
+        std::cin.ignore(256,'\n');
+        std::getline (std::cin, newEmployee.position);
+
+        std::cout << "\nWould you like you add a new employee? (y/n): ";
+        std::cin >> choice;
+        std::cout << std::endl;
+    } while (choice != 'n');
+
+    // file pointer
+    std::fstream fout;
+  
+    // opens an existing csv file or creates a new file.
+    fout.open("directory.csv", std::ios::out | std::ios::app);
+
+    fout << newEmployee.firstName << ',';
+    fout << newEmployee.lastName << ',';
+    fout << newEmployee.id << ',';
+    fout << newEmployee.position << '\n';
+
+    fout.close();
+}
+
+void deleteEmployeeInfo() {
+    std::vector<Employee> employees = getEmployeeData();
+
+    int choice;
+    int count = 1;
+    do {
+        for (auto & employee : employees) {
+            std::cout << "Employee #" << count << " "
+                << employee.firstName << " " << employee.lastName << ".\n";
+            count++;
+        }
+
+        std::cout << "Please enter employee # you would like to delete.\n"
+            "Enter 0 to exit back to main menu: ";
+        std::cin >> choice;
+        std::cout << std::endl;
+
+        if (choice > 0) {
+            employees.erase( employees.begin() + (choice - 1) );
+            count --;
+            std::cout << "count:" << count << std::endl;
+        }
+    } while (choice != 0);
+
+    // removing the existing file
+    remove("directory.csv");
+
+    // file pointer
+    std::fstream fout;
+  
+    // opens an existing csv file or creates a new file.
+    fout.open("directory.csv", std::ios::out | std::ios::app);
+
+    for (int i = 0; i < count; i++) {
+        fout << employees[i].firstName << ',';
+        fout << employees[i].lastName << ',';
+        fout << employees[i].id << ',';
+        fout << employees[i].position << '\n';
+    }
+
+    fout.close();
+}
+
+void viewEmployeeInfo() {
+    std::vector<Employee> employees = getEmployeeData();
     int count = 1;
     for (auto & employee : employees) {
         std::cout << "Employee #" << count << " "
@@ -48,24 +133,21 @@ void viewEmployeeInfo() {
 
     int choice;
     do {
-        std::cout << "Please enter employee # for full information.\n"
+        std::cout << "\nPlease enter employee # for full information.\n"
             "Enter 0 to exit back to main menu.\n"
             "> ";
         std::cin >> choice;
-
-        std::cout << "Employee #" << choice << ":\n";
-        std::cout << "First Name: " << employees[choice-1].firstName << std::endl;
-        std::cout << "Last Name: " << employees[choice-1].lastName << std::endl;
-        std::cout << "ID: " << employees[choice-1].id << std::endl;
-        std::cout << "Position: " << employees[choice-1].position << std::endl;
-        std::cout << std::endl;
+        
+        if (choice > 0) {
+            std::cout << "Employee #" << choice << ":\n";
+            std::cout << "First Name: " << employees[choice-1].firstName << std::endl;
+            std::cout << "Last Name: " << employees[choice-1].lastName << std::endl;
+            std::cout << "ID: " << employees[choice-1].id << std::endl;
+            std::cout << "Position: " << employees[choice-1].position << std::endl;
+        }
     } while (choice != 0);
-    
 
-    // Close file
-    directoryFile.close();
-
-    std::cout << "ViewInfoFunc\n";
+    std::cout << std::endl;
 }
 
 int main() {
@@ -73,7 +155,7 @@ int main() {
         "Please select from the following options:\n"
         "0. Exit\n"
         "1. Enter employee information\n"
-        "2. Edit employee information\n"
+        "2. Delete employee information\n"
         "3. View employee information\n";
 
     int choice;
@@ -85,10 +167,10 @@ int main() {
 
         switch(choice) {
             case 1:
-                std::cout << "Option 1 selected\n";
+                addEmployeeInfo();
                 break;
             case 2:
-                std::cout << "Option 2 selected\n";
+                deleteEmployeeInfo();
                 break;
             case 3:
                 viewEmployeeInfo();
