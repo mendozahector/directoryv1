@@ -60,33 +60,33 @@ void addEmployeeInfo() {
         std::cin.ignore(256,'\n');
         std::getline (std::cin, newEmployee.position);
 
+        // file pointer
+        std::fstream fout;
+    
+        // opens an existing csv file or creates a new file.
+        fout.open("directory.csv", std::ios::out | std::ios::app);
+
+        fout << newEmployee.firstName << ',';
+        fout << newEmployee.lastName << ',';
+        fout << newEmployee.id << ',';
+        fout << newEmployee.position << '\n';
+
+        fout.close();
+
         std::cout << "\nWould you like you add a new employee? (y/n): ";
         std::cin >> choice;
         std::cout << std::endl;
     } while (choice != 'n');
-
-    // file pointer
-    std::fstream fout;
-  
-    // opens an existing csv file or creates a new file.
-    fout.open("directory.csv", std::ios::out | std::ios::app);
-
-    fout << newEmployee.firstName << ',';
-    fout << newEmployee.lastName << ',';
-    fout << newEmployee.id << ',';
-    fout << newEmployee.position << '\n';
-
-    fout.close();
 }
 
 void deleteEmployeeInfo() {
     std::vector<Employee> employees = getEmployeeData();
 
     int choice;
-    int count = 1;
+    int count = 0;
     do {
         for (auto & employee : employees) {
-            std::cout << "Employee #" << count << " "
+            std::cout << "Employee #" << count + 1 << " "
                 << employee.firstName << " " << employee.lastName << ".\n";
             count++;
         }
@@ -98,8 +98,7 @@ void deleteEmployeeInfo() {
 
         if (choice > 0) {
             employees.erase( employees.begin() + (choice - 1) );
-            count --;
-            std::cout << "count:" << count << std::endl;
+            count = 0;
         }
     } while (choice != 0);
 
@@ -112,7 +111,7 @@ void deleteEmployeeInfo() {
     // opens an existing csv file or creates a new file.
     fout.open("directory.csv", std::ios::out | std::ios::app);
 
-    for (int i = 0; i < count; i++) {
+    for (int i = 0; i < employees.size(); i++) {
         fout << employees[i].firstName << ',';
         fout << employees[i].lastName << ',';
         fout << employees[i].id << ',';
